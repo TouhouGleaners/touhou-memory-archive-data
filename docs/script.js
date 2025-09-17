@@ -94,7 +94,7 @@ function createVideoRow(video) {
         <td>
             <div class="video-title">${video.title}</div>
             <div class="video-meta">AV${video.aid} | ${video.bvid} | 时长: ${formatTime(totalDuration)}</div>
-            <div class="tags">${video.tags.map(tag => `<span class="tags">${tag}</span>`).join('')}</div>
+            <div class="tags">${video.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
         </td>
         <td>${video.uploader_name}</td>
         <td>${formatDate(video.created)}</td>
