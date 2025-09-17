@@ -37,3 +37,100 @@ footer p {
   font-size: 12px;
 }
 
+
+/* 表格样式 */
+table {
+  width: auto;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+th {
+  background-color: #3498db;
+  color: white;
+  padding: 12px 12px;
+  font-weight: 600;
+}
+td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+
+/* 行样式 */
+tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+tr:hover {
+  background-color: #f1f8ff;
+}
+
+/* 标题样式 */
+.video-title {
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 5px;
+  color: #2c3e50;
+}
+
+
+/* 视频元数据 */
+.video-meta {
+  font-size: 13px;
+  color: #7f8c8d;
+  margin-bottom: 8px;
+}
+
+/* 标签样式 */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+.tag {
+  background: #e1f0fa;
+  color: #3498db;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+
+/* 状态标签 */
+.status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.status-0 { background: #ecf0f1; color: #7f8c8d; } /* 未检查 */
+.status-1 { background: #d4efdf; color: #27ae60; } /* 自动检测为东方 */
+.status-2 { background: #fdebd0; color: #d35400; } /* 自动检测为非东方 */
+.status-3 { background: #d5f5e3; color: #1d8348; } /* 人工检测为东方 */
+.status-4 { background: #fadbd8; color: #c0392b; } /* 人工检测为非东方 */
+
+
+/* 分P信息 */
+.parts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.part-item {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border-left: 3px solid #3498db;
+}
+.part-title {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+.part-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 13px;
+    color: #7f8c8d;
+}
