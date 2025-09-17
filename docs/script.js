@@ -18,16 +18,19 @@ function formatDate(timestamp, locale="zh-CN") {
 }
 
 // 格式化时间
-function formatTime(seconds, locale="zh-CN") {
-    const date = new Date(0);
-    date.setSeconds(seconds);
+function formatTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600 ) / 60);
+    const seconds = totalSeconds % 60;
 
-    return date.toLocaleTimeString(locale, {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: seconds %60 ? '2-digit': undefined,
-        hour12: false
-    });
+    const parts = [];
+    if (hours > 0) {
+        parts.push(hours.toString().padStart(2, '0'));
+    }
+    parts.push(minutes.toString().padStart(2, '0'));
+    parts.push(seconds.toString().padStart(2, '0'));
+
+    return parts.join(':')
 }
 
 // 初始化页面
