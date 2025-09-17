@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // 加载视频数据
 async function loadVideoData() {
     try {
-        // 从父目录的latest文件夹加载videos.json
-        const response = await fetch('../latest/videos.json');
+        // 从data加载videos.json
+        const response = await fetch('./data/videos.json');
 
         if (!response.ok) {
             throw new Error(`HTTP错误! 状态: ${response.status}`);
@@ -144,7 +144,7 @@ function showError(message) {
             <td colspan="5" class="error-message">
                 <div>视频数据加载失败: ${message}</div>
                 <div style="margin-top: 10px; font-size: 0.9rem;">
-                    请确保videos.json文件位于父目录下的latest文件夹中
+                    请确保videos.json文件位于data文件夹下
                 </div>
                 <button class="reload-btn" onclick="location.relaod()">重新加载</button>
             </td>
