@@ -5,6 +5,7 @@ const statusMap = {
     2: "自动检测为非东方",
     3: "人工检测为东方",
     4: "人工检测为非东方"
+    // 5: 虚拟状态 - 自动+人工检测为东方
 };
 
 // 格式化日期
@@ -16,6 +17,24 @@ function formatDate(timestamp, locale="zh-CN") {
         day: '2-digit'
     });
 }
+
+// 全局存储视频数据
+let allVideos = [];
+
+// 初始化页面
+document.addEventListener('DOMContentLoaded', () => {
+    // 设置事件监听器
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', filterVideos);
+    }
+    const statusFilter = document.getElementById('status-filter')
+    if (statusFilter) {
+        statusFilter.addEventListener('change', filterVideos);
+    }
+    // 加载数据
+    loadVideoData();
+})
 
 // 格式化时间
 function formatTime(totalSeconds) {
@@ -33,11 +52,6 @@ function formatTime(totalSeconds) {
     return parts.join(':')
 }
 
-// 初始化页面
-document.addEventListener('DOMContentLoaded', () => {
-    loadVideoData();
-})
-
 // 加载视频数据
 async function loadVideoData() {
     try {
@@ -50,6 +64,9 @@ async function loadVideoData() {
 
         const videoData = await response.json();
 
+        // 保存至全局变量
+        allVideos = videoData
+
         // 渲染视频列表
         renderVideos(videoData);
 
@@ -61,11 +78,50 @@ async function loadVideoData() {
     }
 }
 
+// 筛选视频
+function filterVideos() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const statusFilter = document.getElementById('status-filter').value;
+
+    let filteredVideos = [...allVideos];
+
+    // 应用状态筛选
+    if (statusFilter !== 'all') {
+        if (statusFilter === '5') {
+            // 状态1和3
+            filteredVideos = filteredVideos.filter(video =>
+                video.touhou_status === 1 || video.touhou_status === 3
+            );
+        } else {
+            // 其他状态正常描述
+            const statusNum = parseInt(statusFilter, 10);
+            filteredVideos = filteredVideos.filter(video => video.touhou_status === statusNum);
+        }
+    }
+
+    // 应用搜索筛选
+    if (searchTerm) {
+        filteredVideos = filteredVideos.filter(video => {
+            // 在标题、UP主和标签中搜索
+            return (
+                video.title.toLowerCase().includes(searchTerm) ||
+                video.uploader_name.toLowerCase().includes(searchTerm) ||
+                video.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+            );
+        });
+    }
+
+    // 渲染筛选后的视频
+    renderVideos(filteredVideos);
+}
+
 // 渲染视频列表
 function renderVideos(videoData) {
     const container = document.getElementById('videos-container');
-    container.innerHTML = '';
+    const counter = document.getElementById('video-counter');
 
+    container.innerHTML = '';
+    counter.textContent = `找到 ${videoData.length} 个视频`
     if (videoData.length === 0) {
         container.innerHTML = `
             <tr>
@@ -149,7 +205,7 @@ function showError(message) {
                 <div style="margin-top: 10px; font-size: 0.9rem;">
                     请确保videos.json文件位于data文件夹下
                 </div>
-                <button class="reload-btn" onclick="location.relaod()">重新加载</button>
+                <button class="reload-btn" onclick="location.reload()">重新加载</button>
             </td>
         </tr>
     `;
