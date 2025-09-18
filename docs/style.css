@@ -204,3 +204,12 @@ tr:hover {
   padding: 30px;
   color: #7f8c8d;
 }
+/* 搜索高亮 */
+.highlight {
+  background-color: #ffeb3b;
+  color: #333;
+  font-weight: bold;
+  padding: 1px 3px;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
