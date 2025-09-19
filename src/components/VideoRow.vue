@@ -2,13 +2,15 @@
   <tr>
     <td>
       <div class="video-title">
-        <a 
-          :href="getVideoUrl(video.aid, video.bvid)" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          class="video-link"
-          v-html="highlightedTitle"
-        ></a>
+        <VideoTooltip :video="video">
+          <a 
+            :href="getVideoUrl(video.aid, video.bvid)" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="video-link"
+            v-html="highlightedTitle"
+          ></a>
+        </VideoTooltip>
       </div>
       <div class="video-meta">
         av{{ video.aid || '' }} | {{ video.bvid || '' }} | 时长: {{ formatTime(totalDuration) }}
@@ -71,9 +73,13 @@
 
 <script>
 import { computed, ref } from 'vue'
+import VideoTooltip from './VideoTooltip.vue'
 
 export default {
   name: 'VideoRow',
+  components: {
+    VideoTooltip
+  },
   props: {
     video: {
       type: Object,

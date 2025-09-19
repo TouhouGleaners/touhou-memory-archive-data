@@ -7,7 +7,7 @@
   "aid": "视频AV号",
   "bvid": "视频BV号",
   "title": "视频标题",
-  "description": "视频描述",
+  "description": "视频简介",
   "pic": "封面图片URL",
   "created": "发布时间 (Unix时间戳)",
   "tags": ["标签1", "标签2"],
