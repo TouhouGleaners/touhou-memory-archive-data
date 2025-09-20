@@ -2,66 +2,12 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Touhou Memory Archive</title>
-    <link rel="stylesheet" href="./style.css">
-    <script src="./script.js"></script>
+  <script type="module" crossorigin src="./assets/index-BT_M6e9e.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CsxJraMq.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-top">
-            <h1>Touhou Memory Archive</h1>
-            <div class="filter-box">
-                <select class="filter-select" id="status-filter">
-                    <option value="all">所有状态</option>
-                    <option value="0">未检查</option>
-                    <option value="1">自动检测为东方</option>
-                    <option value="2">自动检测为非东方</option>
-                    <option value="3">人工检测为东方</option>
-                    <option value="4">人工检测为非东方</option>
-                    <option value="5">自动+人工检测为东方</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="search-container">
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="搜索视频、UP主或标签...">
-            </div>
-        </div>
-        
-        <div class="counter" id="video-counter">找到 0 个视频</div>
-    </header>
-        
-        <div class="table-container">
-            <table class="video-table">
-                <thead>
-                    <tr>
-                        <th style="width: 40%">视频信息</th>
-                        <th style="width: 12%">UP主</th>
-                        <th style="width: 8%">发布时间</th>
-                        <th style="width: 15%">状态</th>
-                        <th style="width: 25%">分P信息</th>
-                    </tr>
-                </thead>
-                <tbody id="videos-container">
-                    <tr>
-                        <td colspan="5" class="loading">
-                            <div>加载视频数据中...</div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <footer>
-            <p id="data-update">数据加载中...</p>
-            <p>
-                <strong>Touhou Memory Archive</strong>&copy; 2025 <a href="https://space.bilibili.com/442719202">Mikuoso</a>. All rights reserved.<br>
-                Associated with the <a href="https://thrd.sthcraft.com">Touhouse of Recollected Dreams</a> fan group.<br>
-                This is a non-commercial, fan-made website. Touhou Project(東方Project) is copyright &copy; Team Shanghai Alice / ZUN.
-            </p>
-        </footer>
-    </div>
+    <div id="app"></div>
 </body>
 </html>
