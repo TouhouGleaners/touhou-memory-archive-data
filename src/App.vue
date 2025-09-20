@@ -13,6 +13,7 @@
       :searchTerm="currentFilterState.searchTerm"
       :loading="loading"
       :error="error"
+      :video="videoList"
       @retry="loadVideoData"
     />
     
