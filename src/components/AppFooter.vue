@@ -4,7 +4,7 @@
     <p>
       <strong>Touhou Memory Archive</strong>&copy; 2025 
       <a href="https://space.bilibili.com/442719202">Mikuoso</a>. All rights reserved.<br>
-      Associated with the <a href="https://thrd.sthcraft.com">Touhouse of Recollected Dreams</a> fan group.<br>
+      Associated with the <a href="https://thrd.sthcraft.com">Teahouse of Recollected Dreams</a> fan group.<br>
       This is a non-commercial, fan-made website. Touhou Project(東方Project) is copyright &copy; Team Shanghai Alice / ZUN.
     </p>
   </footer>

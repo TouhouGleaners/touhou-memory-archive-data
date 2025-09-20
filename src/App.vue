@@ -108,7 +108,7 @@ export default {
         loading.value = true
         error.value = ''
         
-        const response = await fetch('./docs/data/videos.json')
+        const response = await fetch('videos.json')
         
         if (!response.ok) {
           throw new Error(`HTTP错误! 状态: ${response.status}`)

@@ -5,9 +5,10 @@
   "main": "src/main.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --outDir docs",
     "preview": "vite preview",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "deploy": "npm run build && git add docs && git commit -m 更新部署 && git push"
   },
   "dependencies": {
     "vue": "^3.4.0"
