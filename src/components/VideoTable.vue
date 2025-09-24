@@ -172,6 +172,19 @@ export default {
     watch(pageSize, () => {
       currentPage.value = 1
     })
+    
+    // 当搜索词变化时，重置到第一页，避免在其他页筛选后看不到结果的情况
+    watch(() => props.searchTerm, () => {
+      currentPage.value = 1
+    })
+
+    // 当视频列表长度变化（例如应用筛选）时，确保 currentPage 在可用范围内
+    watch(() => props.videos.length, (newLen) => {
+      // 计算可能的页数并把 currentPage 夹在 1..totalPages 之间
+      if (currentPage.value > totalPages.value) {
+        currentPage.value = Math.max(1, totalPages.value)
+      }
+    })
 
     return {
       currentPage,
