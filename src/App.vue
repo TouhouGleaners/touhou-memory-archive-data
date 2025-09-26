@@ -19,6 +19,9 @@
     
     <!-- 页脚 -->
     <AppFooter :dataUpdateTime="dataUpdateTime" />
+    
+    <!-- 滚动按钮 -->
+    <ScrollButtons />
   </div>
 </template>
 
@@ -27,13 +30,15 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import VideoTable from './components/VideoTable.vue'
 import AppFooter from './components/AppFooter.vue'
+import ScrollButtons from './components/ScrollButtons.vue'
 
 export default {
   name: 'App',
   components: {
     AppHeader,
     VideoTable,
-    AppFooter
+    AppFooter,
+    ScrollButtons
   },
   setup() {
     // 响应式数据

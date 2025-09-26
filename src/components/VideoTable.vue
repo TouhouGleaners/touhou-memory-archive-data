@@ -3,11 +3,51 @@
     <table class="video-table">
       <thead>
         <tr>
-          <th style="width: 40%">视频信息</th>
-          <th style="width: 12%">UP主</th>
-          <th style="width: 8%">发布时间</th>
-          <th style="width: 15%">状态</th>
-          <th style="width: 25%">分P信息</th>
+          <th style="width: 38%" class="sortable" @click="handleSort('title')">
+            视频信息
+            <span class="sort-indicator" :class="getSortClass('title')">
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M7 14l5-5 5 5z" class="sort-up"/>
+                <path d="M7 10l5 5 5-5z" class="sort-down"/>
+              </svg>
+            </span>
+          </th>
+          <th style="width: 12%" class="sortable" @click="handleSort('uploader_name')">
+            UP主
+            <span class="sort-indicator" :class="getSortClass('uploader_name')">
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M7 14l5-5 5 5z" class="sort-up"/>
+                <path d="M7 10l5 5 5-5z" class="sort-down"/>
+              </svg>
+            </span>
+          </th>
+          <th style="width: 12%" class="sortable" @click="handleSort('created')">
+            发布时间
+            <span class="sort-indicator" :class="getSortClass('created')">
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M7 14l5-5 5 5z" class="sort-up"/>
+                <path d="M7 10l5 5 5-5z" class="sort-down"/>
+              </svg>
+            </span>
+          </th>
+          <th style="width: 15%" class="sortable" @click="handleSort('touhou_status')">
+            状态
+            <span class="sort-indicator" :class="getSortClass('touhou_status')">
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M7 14l5-5 5 5z" class="sort-up"/>
+                <path d="M7 10l5 5 5-5z" class="sort-down"/>
+              </svg>
+            </span>
+          </th>
+          <th style="width: 23%" class="sortable" @click="handleSort('parts_count')">
+            分P信息
+            <span class="sort-indicator" :class="getSortClass('parts_count')">
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M7 14l5-5 5 5z" class="sort-up"/>
+                <path d="M7 10l5 5 5-5z" class="sort-down"/>
+              </svg>
+            </span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -49,43 +89,76 @@
     </table>
     <!-- 分页控件 -->
     <div class="pagination">
-      <button
-        class="pagination-btn"
-        @click="prevPage"
-        :disabled="currentPage === 1"
-      >
-        &lt; 上一页
-      </button>
-      <span class="pagination-numbers">
+      <!-- 分页按钮和数字 (仅在非全部显示时显示) -->
+      <template v-if="pageSize !== Infinity">
         <button
-          v-if="showFirst"
-          class="pagination-number"
-          :class="{ active: currentPage === 1 }"
-          @click="goToPage(1)"
-        >1</button>
-        <span v-if="showLeftEllipsis" class="ellipsis">...</span>
+          class="pagination-btn"
+          @click="prevPage"
+          :disabled="currentPage === 1"
+        >
+          &lt; 上一页
+        </button>
+        <span class="pagination-numbers">
+          <button
+            v-if="showFirst"
+            class="pagination-number"
+            :class="{ active: currentPage === 1 }"
+            @click="goToPage(1)"
+          >1</button>
+          <span v-if="showLeftEllipsis" class="ellipsis">...</span>
+          <button
+            v-for="page in pageNumbers"
+            :key="page"
+            class="pagination-number"
+            :class="{ active: currentPage === page }"
+            @click="goToPage(page)"
+          >{{ page }}</button>
+          <span v-if="showRightEllipsis" class="ellipsis">...</span>
+          <button
+            v-if="showLast"
+            class="pagination-number"
+            :class="{ active: currentPage === totalPages }"
+            @click="goToPage(totalPages)"
+          >{{ totalPages }}</button>
+        </span>
         <button
-          v-for="page in pageNumbers"
-          :key="page"
-          class="pagination-number"
-          :class="{ active: currentPage === page }"
-          @click="goToPage(page)"
-        >{{ page }}</button>
-        <span v-if="showRightEllipsis" class="ellipsis">...</span>
-        <button
-          v-if="showLast"
-          class="pagination-number"
-          :class="{ active: currentPage === totalPages }"
-          @click="goToPage(totalPages)"
-        >{{ totalPages }}</button>
-      </span>
-      <button
-        class="pagination-btn"
-        @click="nextPage"
-        :disabled="currentPage === totalPages"
-      >
-        下一页 &gt;
-      </button>
+          class="pagination-btn"
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+        >
+          下一页 &gt;
+        </button>
+      </template>
+      
+      <!-- 每页条数选择器 -->
+      <div class="page-size-selector">
+        <label for="page-size-select">每页显示:</label>
+        <select
+          id="page-size-select"
+          v-model="pageSize"
+          class="page-size-select"
+          @change="handlePageSizeChange"
+        >
+          <option :value="10">10 条</option>
+          <option :value="20">20 条</option>
+          <option :value="50">50 条</option>
+          <option :value="100">100 条</option>
+          <option :value="200">200 条</option>
+          <option :value="500">500 条</option>
+          <option :value="1000">1000 条</option>
+          <option :value="Infinity">全部</option>
+        </select>
+      </div>
+      
+      <!-- 数据统计 -->
+      <div class="pagination-info">
+        <span v-if="pageSize === Infinity">
+          显示全部 {{ sortedVideos.length }} 条
+        </span>
+        <span v-else>
+          第 {{ startIndex }}-{{ endIndex }} 条，共 {{ sortedVideos.length }} 条
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -121,30 +194,132 @@ export default {
   setup(props) {
     const currentPage = ref(1)
     const pageSize = ref(50)
+    const sortField = ref('')
+    const sortOrder = ref('') // 'asc' 或 'desc'
 
-    const totalPages = computed(() =>
-      Math.max(1, Math.ceil(props.videos.length / pageSize.value))
-    )
+    // 排序后的视频数据
+    const sortedVideos = computed(() => {
+      if (!sortField.value || !sortOrder.value) {
+        return props.videos
+      }
+
+      return [...props.videos].sort((a, b) => {
+        let valueA, valueB
+
+        switch (sortField.value) {
+          case 'title':
+            valueA = (a.title || '').toLowerCase()
+            valueB = (b.title || '').toLowerCase()
+            break
+          case 'uploader_name':
+            valueA = (a.uploader_name || '').toLowerCase()
+            valueB = (b.uploader_name || '').toLowerCase()
+            break
+          case 'created':
+            valueA = a.created || 0
+            valueB = b.created || 0
+            break
+          case 'touhou_status':
+            valueA = a.touhou_status || 0
+            valueB = b.touhou_status || 0
+            break
+          case 'parts_count':
+            valueA = (a.parts && a.parts.length) || 0
+            valueB = (b.parts && b.parts.length) || 0
+            break
+          default:
+            return 0
+        }
+
+        // 字符串比较
+        if (typeof valueA === 'string') {
+          const result = valueA.localeCompare(valueB, 'zh-CN')
+          return sortOrder.value === 'asc' ? result : -result
+        }
+
+        // 数字比较
+        if (sortOrder.value === 'asc') {
+          return valueA - valueB
+        } else {
+          return valueB - valueA
+        }
+      })
+    })
+
+    const totalPages = computed(() => {
+      if (pageSize.value === Infinity) return 1
+      return Math.max(1, Math.ceil(sortedVideos.value.length / pageSize.value))
+    })
 
     const pagedVideos = computed(() => {
+      if (pageSize.value === Infinity) return sortedVideos.value
       const start = (currentPage.value - 1) * pageSize.value
-      return props.videos.slice(start, start + pageSize.value)
+      return sortedVideos.value.slice(start, start + pageSize.value)
     })
+
+    // 数据统计计算属性
+    const startIndex = computed(() => {
+      if (pageSize.value === Infinity || sortedVideos.value.length === 0) return 0
+      return (currentPage.value - 1) * pageSize.value + 1
+    })
+
+    const endIndex = computed(() => {
+      if (pageSize.value === Infinity) return sortedVideos.value.length
+      const end = currentPage.value * pageSize.value
+      return Math.min(end, sortedVideos.value.length)
+    })
+
+    // 处理排序
+    const handleSort = (field) => {
+      if (sortField.value === field) {
+        // 同一字段：无排序 -> 升序 -> 降序 -> 无排序
+        if (!sortOrder.value) {
+          sortOrder.value = 'asc'
+        } else if (sortOrder.value === 'asc') {
+          sortOrder.value = 'desc'
+        } else {
+          sortField.value = ''
+          sortOrder.value = ''
+        }
+      } else {
+        // 不同字段：直接设为升序
+        sortField.value = field
+        sortOrder.value = 'asc'
+      }
+      
+      // 排序后重置到第一页
+      currentPage.value = 1
+    }
+
+    // 获取排序指示器的样式类
+    const getSortClass = (field) => {
+      if (sortField.value !== field) return ''
+      return sortOrder.value === 'asc' ? 'sort-asc' : sortOrder.value === 'desc' ? 'sort-desc' : ''
+    }
 
     function prevPage() {
       if (currentPage.value > 1) currentPage.value--
     }
+    
     function nextPage() {
       if (currentPage.value < totalPages.value) currentPage.value++
     }
+    
     function goToPage(page) {
       if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
       }
     }
 
+    // 处理每页条数变化
+    function handlePageSizeChange() {
+      currentPage.value = 1 // 重置到第一页
+    }
+
     // 分页数字逻辑
     const pageNumbers = computed(() => {
+      if (pageSize.value === Infinity) return []
+      
       const pages = []
       const total = totalPages.value
       const cur = currentPage.value
@@ -163,10 +338,15 @@ export default {
       }
       return pages
     })
-    const showFirst = computed(() => totalPages.value > 1)
-    const showLast = computed(() => totalPages.value > 1)
-    const showLeftEllipsis = computed(() => currentPage.value > 4 && totalPages.value > 6)
-    const showRightEllipsis = computed(() => currentPage.value < totalPages.value - 3 && totalPages.value > 6)
+    
+    const showFirst = computed(() => totalPages.value > 1 && pageSize.value !== Infinity)
+    const showLast = computed(() => totalPages.value > 1 && pageSize.value !== Infinity)
+    const showLeftEllipsis = computed(() => 
+      currentPage.value > 4 && totalPages.value > 6 && pageSize.value !== Infinity
+    )
+    const showRightEllipsis = computed(() => 
+      currentPage.value < totalPages.value - 3 && totalPages.value > 6 && pageSize.value !== Infinity
+    )
 
     // 当每页数量变化时，重置到第一页
     watch(pageSize, () => {
@@ -189,11 +369,19 @@ export default {
     return {
       currentPage,
       pageSize,
+      sortField,
+      sortOrder,
+      sortedVideos,
       totalPages,
       pagedVideos,
+      startIndex,
+      endIndex,
       prevPage,
       nextPage,
       goToPage,
+      handlePageSizeChange,
+      handleSort,
+      getSortClass,
       pageNumbers,
       showFirst,
       showLast,
@@ -221,6 +409,51 @@ th {
   padding: 12px;
   font-weight: 600;
   text-align: left;
+  position: relative;
+}
+
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+th.sortable:hover {
+  background-color: #2980b9;
+}
+
+.sort-indicator {
+  display: inline-block;
+  margin-left: 5px;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+th.sortable:hover .sort-indicator {
+  opacity: 0.8;
+}
+
+.sort-indicator.sort-asc,
+.sort-indicator.sort-desc {
+  opacity: 1;
+}
+
+.sort-indicator svg {
+  vertical-align: middle;
+  fill: currentColor;
+}
+
+.sort-indicator .sort-up,
+.sort-indicator .sort-down {
+  opacity: 0.3;
+}
+
+.sort-indicator.sort-asc .sort-up {
+  opacity: 1;
+}
+
+.sort-indicator.sort-desc .sort-down {
+  opacity: 1;
 }
 
 /* 加载状态 */
@@ -271,6 +504,7 @@ th {
   gap: 1em;
   justify-content: center;
   font-size: 1rem;
+  flex-wrap: wrap;
 }
 
 .pagination-btn {
@@ -283,11 +517,13 @@ th {
   font-weight: 500;
   transition: background-color 0.2s;
 }
+
 .pagination-btn:disabled {
   background-color: #bdc3c7;
   color: #fff;
   cursor: not-allowed;
 }
+
 .pagination-btn:not(:disabled):hover {
   background-color: #2980b9;
 }
@@ -308,6 +544,7 @@ th {
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
+
 .pagination-number.active,
 .pagination-number:hover {
   background: #3498db;
@@ -318,5 +555,58 @@ th {
   color: #95a5a6;
   padding: 0 4px;
   user-select: none;
+}
+
+/* 每页条数选择器样式 */
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-size-selector label {
+  font-size: 14px;
+  color: #7f8c8d;
+  white-space: nowrap;
+}
+
+.page-size-select {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  min-width: 80px;
+}
+
+.page-size-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* 数据统计样式 */
+.pagination-info {
+  font-size: 14px;
+  color: #7f8c8d;
+  white-space: nowrap;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .pagination {
+    flex-direction: column;
+    gap: 0.5em;
+  }
+  
+  .page-size-selector {
+    justify-content: center;
+  }
+  
+  .pagination-info {
+    text-align: center;
+  }
 }
 </style>
