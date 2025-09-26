@@ -23,7 +23,7 @@
           <td colspan="5" class="error-message">
             <div>视频数据加载失败: {{ error }}</div>
             <div style="margin-top: 10px; font-size: 0.9rem;">
-              请确保videos.json文件位于data文件夹下
+              请确保videos.json文件位于public文件夹下
             </div>
             <button class="reload-btn" @click="$emit('retry')">重新加载</button>
           </td>
@@ -40,18 +40,59 @@
         <!-- 视频列表 -->
         <VideoRow 
           v-else
-          v-for="video in videos" 
+          v-for="video in pagedVideos" 
           :key="video.aid || video.bvid"
           :video="video"
           :searchTerm="searchTerm"
         />
       </tbody>
     </table>
+    <!-- 分页控件 -->
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        @click="prevPage"
+        :disabled="currentPage === 1"
+      >
+        &lt; 上一页
+      </button>
+      <span class="pagination-numbers">
+        <button
+          v-if="showFirst"
+          class="pagination-number"
+          :class="{ active: currentPage === 1 }"
+          @click="goToPage(1)"
+        >1</button>
+        <span v-if="showLeftEllipsis" class="ellipsis">...</span>
+        <button
+          v-for="page in pageNumbers"
+          :key="page"
+          class="pagination-number"
+          :class="{ active: currentPage === page }"
+          @click="goToPage(page)"
+        >{{ page }}</button>
+        <span v-if="showRightEllipsis" class="ellipsis">...</span>
+        <button
+          v-if="showLast"
+          class="pagination-number"
+          :class="{ active: currentPage === totalPages }"
+          @click="goToPage(totalPages)"
+        >{{ totalPages }}</button>
+      </span>
+      <button
+        class="pagination-btn"
+        @click="nextPage"
+        :disabled="currentPage === totalPages"
+      >
+        下一页 &gt;
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
 import VideoRow from './VideoRow.vue'
+import { ref, computed, watch } from 'vue'
 
 export default {
   name: 'VideoTable',
@@ -76,7 +117,90 @@ export default {
       default: ''
     }
   },
-  emits: ['retry']
+  emits: ['retry'],
+  setup(props) {
+    const currentPage = ref(1)
+    const pageSize = ref(50)
+
+    const totalPages = computed(() =>
+      Math.max(1, Math.ceil(props.videos.length / pageSize.value))
+    )
+
+    const pagedVideos = computed(() => {
+      const start = (currentPage.value - 1) * pageSize.value
+      return props.videos.slice(start, start + pageSize.value)
+    })
+
+    function prevPage() {
+      if (currentPage.value > 1) currentPage.value--
+    }
+    function nextPage() {
+      if (currentPage.value < totalPages.value) currentPage.value++
+    }
+    function goToPage(page) {
+      if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page
+      }
+    }
+
+    // 分页数字逻辑
+    const pageNumbers = computed(() => {
+      const pages = []
+      const total = totalPages.value
+      const cur = currentPage.value
+      let start = Math.max(2, cur - 2)
+      let end = Math.min(total - 1, cur + 2)
+      if (cur <= 4) {
+        start = 2
+        end = Math.min(5, total - 1)
+      }
+      if (cur >= total - 3) {
+        start = Math.max(2, total - 4)
+        end = total - 1
+      }
+      for (let i = start; i <= end; i++) {
+        pages.push(i)
+      }
+      return pages
+    })
+    const showFirst = computed(() => totalPages.value > 1)
+    const showLast = computed(() => totalPages.value > 1)
+    const showLeftEllipsis = computed(() => currentPage.value > 4 && totalPages.value > 6)
+    const showRightEllipsis = computed(() => currentPage.value < totalPages.value - 3 && totalPages.value > 6)
+
+    // 当每页数量变化时，重置到第一页
+    watch(pageSize, () => {
+      currentPage.value = 1
+    })
+    
+    // 当搜索词变化时，重置到第一页，避免在其他页筛选后看不到结果的情况
+    watch(() => props.searchTerm, () => {
+      currentPage.value = 1
+    })
+
+    // 当视频列表长度变化（例如应用筛选）时，确保 currentPage 在可用范围内
+    watch(() => props.videos.length, (newLen) => {
+      // 计算可能的页数并把 currentPage 夹在 1..totalPages 之间
+      if (currentPage.value > totalPages.value) {
+        currentPage.value = Math.max(1, totalPages.value)
+      }
+    })
+
+    return {
+      currentPage,
+      pageSize,
+      totalPages,
+      pagedVideos,
+      prevPage,
+      nextPage,
+      goToPage,
+      pageNumbers,
+      showFirst,
+      showLast,
+      showLeftEllipsis,
+      showRightEllipsis
+    }
+  }
 }
 </script>
 
@@ -137,5 +261,62 @@ th {
   margin-top: 10px;
   font-size: 0.9rem;
   color: #95a5a6;
+}
+
+/* 分页样式 */
+.pagination {
+  margin-top: 1em;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.pagination-btn {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+.pagination-btn:disabled {
+  background-color: #bdc3c7;
+  color: #fff;
+  cursor: not-allowed;
+}
+.pagination-btn:not(:disabled):hover {
+  background-color: #2980b9;
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
+}
+
+.pagination-number {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.pagination-number.active,
+.pagination-number:hover {
+  background: #3498db;
+  color: #fff;
+}
+
+.ellipsis {
+  color: #95a5a6;
+  padding: 0 4px;
+  user-select: none;
 }
 </style>

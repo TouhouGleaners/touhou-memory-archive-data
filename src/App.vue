@@ -13,6 +13,7 @@
       :searchTerm="currentFilterState.searchTerm"
       :loading="loading"
       :error="error"
+      :video="videoList"
       @retry="loadVideoData"
     />
     
@@ -102,39 +103,38 @@ export default {
       currentFilterState.statusFilter = statusFilter
     }
 
-    // 加载视频数据
+    // 加载视频数据，并获取 Last-Modified 作为更新时间
     const loadVideoData = async () => {
       try {
         loading.value = true
         error.value = ''
         
-        const response = await fetch('./docs/data/videos.json')
+        const response = await fetch('videos.json')
         
         if (!response.ok) {
           throw new Error(`HTTP错误! 状态: ${response.status}`)
         }
         
         allVideos.value = await response.json()
-        updateDataTimestamp()
+        // 获取 Last-Modified 头
+        const lastModified = response.headers.get('Last-Modified')
+        if (lastModified) {
+          const date = new Date(lastModified)
+          dataUpdateTime.value = date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          })
+        }
       } catch (err) {
         console.error('加载视频失败:', err)
         error.value = err.message
       } finally {
         loading.value = false
       }
-    }
-
-    // 更新数据时间戳
-    const updateDataTimestamp = () => {
-      const now = new Date()
-      dataUpdateTime.value = now.toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      })
     }
 
     // 组件挂载时加载数据
