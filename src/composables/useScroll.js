@@ -18,7 +18,7 @@ export function useScroll() {
   const handleScroll = () => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const scrollHeight = document.documentElement.scrollHeight;
-    const clientHeight = window.innerHeight;
+    const clientHeight = document.documentElement.clientHeight;
     showScrollToTop.value = scrollTop > 200;
     showScrollToBottom.value = scrollTop < scrollHeight - clientHeight - 200;
   };
