@@ -27,75 +27,26 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { useScroll } from '../composables/useScroll.js';
 
 export default {
   name: 'ScrollButtons',
   setup() {
-    const showScrollToTop = ref(false)
-    const showScrollToBottom = ref(false)
-
-    // 滚动到顶部
+    const { showScrollToTop, showScrollToBottom } = useScroll();
     const scrollToTop = () => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      })
-    }
-
-    // 滚动到底部
+      window.scrollTo({ top: 0, behavior: 'smooth'});
+    };
     const scrollToBottom = () => {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth'
-      })
-    }
-
-    // 处理滚动事件，控制按钮显示
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-      const scrollHeight = document.documentElement.scrollHeight
-      const clientHeight = window.innerHeight
-
-      // 滚动超过200px时显示回到顶部按钮
-      showScrollToTop.value = scrollTop > 200
-
-      // 距离底部超过200px时显示滚动到底部按钮
-      showScrollToBottom.value = scrollTop < scrollHeight - clientHeight - 200
-    }
-
-    // 节流函数，避免频繁触发
-    let scrollTimer = null
-    const throttledHandleScroll = () => {
-      if (scrollTimer) return
-      
-      scrollTimer = setTimeout(() => {
-        handleScroll()
-        scrollTimer = null
-      }, 100)
-    }
-
-    onMounted(() => {
-      window.addEventListener('scroll', throttledHandleScroll, { passive: true })
-      // 初始检查
-      handleScroll()
-    })
-
-    onUnmounted(() => {
-      window.removeEventListener('scroll', throttledHandleScroll)
-      if (scrollTimer) {
-        clearTimeout(scrollTimer)
-      }
-    })
-
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth'});
+    };
     return {
       showScrollToTop,
       showScrollToBottom,
       scrollToTop,
-      scrollToBottom
-    }
-  }
-}
+      scrollToBottom,
+    };
+  },
+};
 </script>
 
 <style scoped>
