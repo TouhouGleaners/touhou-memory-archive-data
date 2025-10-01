@@ -1,0 +1,20 @@
+name: 'Assign Triage Label to New PRs'
+on:
+  pull_request_target:
+    types: [opened]
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: 'Add "Status: Triage" label'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['Status: Triage']
+            });
