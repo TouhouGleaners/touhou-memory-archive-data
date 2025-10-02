@@ -193,6 +193,7 @@ export default {
     }
   },
   emits: ['retry'],
+  
   setup(props) {
     // 将 props.videos 包装成一个 computed ref 传给 composable
     const videosRef = computed(() => props.videos);
@@ -204,7 +205,6 @@ export default {
       currentPage, 
       pageSize, 
       totalPages, 
-      // ... (把你需要的其他分页变量和方法解构出来)
       startIndex,
       endIndex,
       prevPage,
@@ -218,27 +218,26 @@ export default {
       showRightEllipsis
     } = usePagination(sortedVideos);
     const totalCount = computed(() => videosRef.value.length);
+
     return {
-      // 从 sorting 返回
       handleSort,
       getSortClass,
-      // 从 pagination 返回
-      pagedVideos, // *** 重要：模板中用的 v-for="video in pagedVideos" 要确认变量名一致
+      pagedVideos,
       currentPage,
       pageSize,
-    totalPages,
-    startIndex,
-    endIndex,
-    prevPage,
-    nextPage,
-    goToPage,
-    handlePageSizeChange,
-    pageNumbers,
-    showFirst,
-    showLast,
-    showLeftEllipsis,
-    showRightEllipsis,
-    totalCount
+      totalPages,
+      startIndex,
+      endIndex,
+      prevPage,
+      nextPage,
+      goToPage,
+      handlePageSizeChange,
+      pageNumbers,
+      showFirst,
+      showLast,
+      showLeftEllipsis,
+      showRightEllipsis,
+      totalCount
     };
   }
 }
