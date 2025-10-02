@@ -137,7 +137,6 @@
           id="page-size-select"
           v-model="pageSize"
           class="page-size-select"
-          @change="handlePageSizeChange"
         >
           <option :value="10">10 条</option>
           <option :value="20">20 条</option>
@@ -193,7 +192,7 @@ export default {
     }
   },
   emits: ['retry'],
-  
+
   setup(props) {
     // 将 props.videos 包装成一个 computed ref 传给 composable
     const videosRef = computed(() => props.videos);
@@ -210,7 +209,6 @@ export default {
       prevPage,
       nextPage,
       goToPage,
-      handlePageSizeChange,
       pageNumbers,
       showFirst,
       showLast,
@@ -231,7 +229,6 @@ export default {
       prevPage,
       nextPage,
       goToPage,
-      handlePageSizeChange,
       pageNumbers,
       showFirst,
       showLast,

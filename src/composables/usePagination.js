@@ -27,23 +27,18 @@ export function usePagination(data) {
     return Math.min(end, data.value.length)
   })
 
-  function prevPage() {
+  const prevPage = () => {
     if (currentPage.value > 1) currentPage.value--
   }
   
-  function nextPage() {
+  const nextPage = () => {
     if (currentPage.value < totalPages.value) currentPage.value++
   }
   
-  function goToPage(page) {
+  const goToPage = (page) => {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page
     }
-  }
-
-  // 处理每页条数变化
-  function handlePageSizeChange() {
-    currentPage.value = 1 // 重置到第一页
   }
 
   // 分页数字逻辑
@@ -71,12 +66,8 @@ export function usePagination(data) {
   
   const showFirst = computed(() => totalPages.value > 1 && pageSize.value !== Infinity)
   const showLast = computed(() => totalPages.value > 1 && pageSize.value !== Infinity)
-  const showLeftEllipsis = computed(() => 
-    currentPage.value > 4 && totalPages.value > 6 && pageSize.value !== Infinity
-  )
-  const showRightEllipsis = computed(() => 
-    currentPage.value < totalPages.value - 3 && totalPages.value > 6 && pageSize.value !== Infinity
-  )
+  const showLeftEllipsis = computed(() => currentPage.value > 4 && totalPages.value > 6 && pageSize.value !== Infinity)
+  const showRightEllipsis = computed(() => currentPage.value < totalPages.value - 3 && totalPages.value > 6 && pageSize.value !== Infinity)
 
   // 当每页数量变化时，重置到第一页
   watch(pageSize, () => {
@@ -101,7 +92,6 @@ export function usePagination(data) {
     prevPage,
     nextPage,
     goToPage,
-    handlePageSizeChange,
     pageNumbers,
     showFirst,
     showLast,
