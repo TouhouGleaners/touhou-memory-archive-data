@@ -153,10 +153,10 @@
       <!-- 数据统计 -->
       <div class="pagination-info">
         <span v-if="pageSize === Infinity">
-          显示全部 {{ sortedVideos.length }} 条
+          显示全部 {{ totalCount }} 条
         </span>
         <span v-else>
-          第 {{ startIndex }}-{{ endIndex }} 条，共 {{ sortedVideos.length }} 条
+          第 {{ startIndex }}-{{ endIndex }} 条，共 {{ totalCount }} 条
         </span>
       </div>
     </div>
@@ -164,8 +164,10 @@
 </template>
 
 <script>
-import VideoRow from './VideoRow.vue'
-import { ref, computed, watch } from 'vue'
+import { computed } from 'vue';
+import VideoRow from './VideoRow.vue';
+import { useSorting } from '../composables/useSorting.js';
+import { usePagination } from '../composables/usePagination.js';
 
 export default {
   name: 'VideoTable',
@@ -192,202 +194,52 @@ export default {
   },
   emits: ['retry'],
   setup(props) {
-    const currentPage = ref(1)
-    const pageSize = ref(50)
-    const sortField = ref('')
-    const sortOrder = ref('') // 'asc' 或 'desc'
-
-    // 排序后的视频数据
-    const sortedVideos = computed(() => {
-      if (!sortField.value || !sortOrder.value) {
-        return props.videos
-      }
-
-      return [...props.videos].sort((a, b) => {
-        let valueA, valueB
-
-        switch (sortField.value) {
-          case 'title':
-            valueA = (a.title || '').toLowerCase()
-            valueB = (b.title || '').toLowerCase()
-            break
-          case 'uploader_name':
-            valueA = (a.uploader_name || '').toLowerCase()
-            valueB = (b.uploader_name || '').toLowerCase()
-            break
-          case 'created':
-            valueA = a.created || 0
-            valueB = b.created || 0
-            break
-          case 'touhou_status':
-            valueA = a.touhou_status || 0
-            valueB = b.touhou_status || 0
-            break
-          case 'parts_count':
-            valueA = (a.parts && a.parts.length) || 0
-            valueB = (b.parts && b.parts.length) || 0
-            break
-          default:
-            return 0
-        }
-
-        // 字符串比较
-        if (typeof valueA === 'string') {
-          const result = valueA.localeCompare(valueB, 'zh-CN')
-          return sortOrder.value === 'asc' ? result : -result
-        }
-
-        // 数字比较
-        if (sortOrder.value === 'asc') {
-          return valueA - valueB
-        } else {
-          return valueB - valueA
-        }
-      })
-    })
-
-    const totalPages = computed(() => {
-      if (pageSize.value === Infinity) return 1
-      return Math.max(1, Math.ceil(sortedVideos.value.length / pageSize.value))
-    })
-
-    const pagedVideos = computed(() => {
-      if (pageSize.value === Infinity) return sortedVideos.value
-      const start = (currentPage.value - 1) * pageSize.value
-      return sortedVideos.value.slice(start, start + pageSize.value)
-    })
-
-    // 数据统计计算属性
-    const startIndex = computed(() => {
-      if (pageSize.value === Infinity || sortedVideos.value.length === 0) return 0
-      return (currentPage.value - 1) * pageSize.value + 1
-    })
-
-    const endIndex = computed(() => {
-      if (pageSize.value === Infinity) return sortedVideos.value.length
-      const end = currentPage.value * pageSize.value
-      return Math.min(end, sortedVideos.value.length)
-    })
-
-    // 处理排序
-    const handleSort = (field) => {
-      if (sortField.value === field) {
-        // 同一字段：无排序 -> 升序 -> 降序 -> 无排序
-        if (!sortOrder.value) {
-          sortOrder.value = 'asc'
-        } else if (sortOrder.value === 'asc') {
-          sortOrder.value = 'desc'
-        } else {
-          sortField.value = ''
-          sortOrder.value = ''
-        }
-      } else {
-        // 不同字段：直接设为升序
-        sortField.value = field
-        sortOrder.value = 'asc'
-      }
-      
-      // 排序后重置到第一页
-      currentPage.value = 1
-    }
-
-    // 获取排序指示器的样式类
-    const getSortClass = (field) => {
-      if (sortField.value !== field) return ''
-      return sortOrder.value === 'asc' ? 'sort-asc' : sortOrder.value === 'desc' ? 'sort-desc' : ''
-    }
-
-    function prevPage() {
-      if (currentPage.value > 1) currentPage.value--
-    }
-    
-    function nextPage() {
-      if (currentPage.value < totalPages.value) currentPage.value++
-    }
-    
-    function goToPage(page) {
-      if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page
-      }
-    }
-
-    // 处理每页条数变化
-    function handlePageSizeChange() {
-      currentPage.value = 1 // 重置到第一页
-    }
-
-    // 分页数字逻辑
-    const pageNumbers = computed(() => {
-      if (pageSize.value === Infinity) return []
-      
-      const pages = []
-      const total = totalPages.value
-      const cur = currentPage.value
-      let start = Math.max(2, cur - 2)
-      let end = Math.min(total - 1, cur + 2)
-      if (cur <= 4) {
-        start = 2
-        end = Math.min(5, total - 1)
-      }
-      if (cur >= total - 3) {
-        start = Math.max(2, total - 4)
-        end = total - 1
-      }
-      for (let i = start; i <= end; i++) {
-        pages.push(i)
-      }
-      return pages
-    })
-    
-    const showFirst = computed(() => totalPages.value > 1 && pageSize.value !== Infinity)
-    const showLast = computed(() => totalPages.value > 1 && pageSize.value !== Infinity)
-    const showLeftEllipsis = computed(() => 
-      currentPage.value > 4 && totalPages.value > 6 && pageSize.value !== Infinity
-    )
-    const showRightEllipsis = computed(() => 
-      currentPage.value < totalPages.value - 3 && totalPages.value > 6 && pageSize.value !== Infinity
-    )
-
-    // 当每页数量变化时，重置到第一页
-    watch(pageSize, () => {
-      currentPage.value = 1
-    })
-    
-    // 当搜索词变化时，重置到第一页，避免在其他页筛选后看不到结果的情况
-    watch(() => props.searchTerm, () => {
-      currentPage.value = 1
-    })
-
-    // 当视频列表长度变化（例如应用筛选）时，确保 currentPage 在可用范围内
-    watch(() => props.videos.length, (newLen) => {
-      // 计算可能的页数并把 currentPage 夹在 1..totalPages 之间
-      if (currentPage.value > totalPages.value) {
-        currentPage.value = Math.max(1, totalPages.value)
-      }
-    })
-
-    return {
-      currentPage,
-      pageSize,
-      sortField,
-      sortOrder,
-      sortedVideos,
-      totalPages,
-      pagedVideos,
+    // 将 props.videos 包装成一个 computed ref 传给 composable
+    const videosRef = computed(() => props.videos);
+    // 获取排序逻辑和排序后的数据
+    const { sortedVideos, handleSort, getSortClass } = useSorting(videosRef);
+    // 将排序后的数据交给分页逻辑处理
+    const { 
+      pagedVideos, 
+      currentPage, 
+      pageSize, 
+      totalPages, 
+      // ... (把你需要的其他分页变量和方法解构出来)
       startIndex,
       endIndex,
       prevPage,
       nextPage,
       goToPage,
       handlePageSizeChange,
-      handleSort,
-      getSortClass,
       pageNumbers,
       showFirst,
       showLast,
       showLeftEllipsis,
       showRightEllipsis
-    }
+    } = usePagination(sortedVideos);
+    const totalCount = computed(() => videosRef.value.length);
+    return {
+      // 从 sorting 返回
+      handleSort,
+      getSortClass,
+      // 从 pagination 返回
+      pagedVideos, // *** 重要：模板中用的 v-for="video in pagedVideos" 要确认变量名一致
+      currentPage,
+      pageSize,
+    totalPages,
+    startIndex,
+    endIndex,
+    prevPage,
+    nextPage,
+    goToPage,
+    handlePageSizeChange,
+    pageNumbers,
+    showFirst,
+    showLast,
+    showLeftEllipsis,
+    showRightEllipsis,
+    totalCount
+    };
   }
 }
 </script>
