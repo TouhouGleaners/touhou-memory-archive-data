@@ -30,6 +30,7 @@ import AppHeader from './components/AppHeader.vue'
 import VideoTable from './components/VideoTable.vue'
 import AppFooter from './components/AppFooter.vue'
 import ScrollButtons from './components/ScrollButtons.vue'
+import { useFiltering } from './composables/useFiltering.js'
 
 export default {
   name: 'App',
@@ -40,62 +41,21 @@ export default {
     ScrollButtons
   },
   setup() {
-    // 响应式数据
+    // 原始数据
     const allVideos = ref([])
     const loading = ref(true)
     const error = ref('')
     const dataUpdateTime = ref('')
     
-    // 筛选状态
+    // 筛选状态中心
     const currentFilterState = reactive({
       searchTerm: '',
       statusFilter: 'all'
+      // 预留
     })
 
-    // 计算属性：过滤后的视频
-    const filteredVideos = computed(() => {
-      let filtered = [...allVideos.value]
-      
-      // 应用状态筛选
-      if (currentFilterState.statusFilter !== 'all') {
-        if (currentFilterState.statusFilter === '5') {
-          filtered = filtered.filter(video => 
-            video.touhou_status === 1 || video.touhou_status === 3
-          )
-        } else {
-          const statusNum = parseInt(currentFilterState.statusFilter, 10)
-          filtered = filtered.filter(video => 
-            video.touhou_status === statusNum
-          )
-        }
-      }
-      
-      // 应用搜索筛选
-      if (currentFilterState.searchTerm) {
-        const term = currentFilterState.searchTerm.toLowerCase().trim()
-        
-        filtered = filtered.filter(video => {
-          const titleMatch = video.title && 
-            video.title.toLowerCase().includes(term)
-          
-          const uploaderMatch = video.uploader_name && 
-            video.uploader_name.toLowerCase().includes(term)
-          
-          const tagsMatch = video.tags && 
-            video.tags.some(tag => tag.toLowerCase().includes(term))
-          
-          const aidMatch = video.aid && 
-            video.aid.toString().includes(term)
-
-          const bvidMatch = video.bvid && 
-            video.bvid.toLowerCase().includes(term)
-          
-          return titleMatch || uploaderMatch || tagsMatch || bvidMatch || aidMatch
-        })
-      }
-      
-      return filtered
-    })
+    // 过滤逻辑
+    const { filteredVideos } = useFiltering(allVideos, currentFilterState)
 
     // 处理搜索
     const handleSearch = (searchTerm) => {
@@ -106,6 +66,8 @@ export default {
     const handleStatusFilter = (statusFilter) => {
       currentFilterState.statusFilter = statusFilter
     }
+
+    // 预留
 
     // 加载视频数据，并获取 Last-Modified 作为更新时间
     const loadVideoData = async () => {
@@ -154,7 +116,8 @@ export default {
       dataUpdateTime,
       handleSearch,
       handleStatusFilter,
-      loadVideoData
+      loadVideoData,
+      // 预留
     }
   }
 }
