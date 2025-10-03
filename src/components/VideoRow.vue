@@ -8,8 +8,9 @@
             target="_blank" 
             rel="noopener noreferrer"
             class="video-link"
-            v-html="highlightedTitle"
-          ></a>
+          >
+          {{ highlightedTitle[0] }} <span v-if="highlightedTitle[1]" class="highlight"> {{ highlightedTitle[1] }} </span> {{ highlightedTitle[2] }}
+        </a>
         </VideoTooltip>
       </div>
       <div class="video-meta">
@@ -20,7 +21,9 @@
       </div>
     </td>
     <td>
-      <span v-html="highlightedUploader"></span>
+      <span>
+        {{ highlightedUploader[0] }} <span v-if="highlightedUploader[1]" class="highlight"> {{ highlightedUploader[1] }} </span> {{ highlightedUploader[2] }}
+      </span>
     </td>
     <td>{{ video.created ? formatDate(video.created) : '未知日期' }}</td>
     <td>
@@ -100,18 +103,28 @@ export default {
       partsExpanded.value = !partsExpanded.value
     }
 
-    // 高亮搜索词
+    // 安全的高亮函数，返回一个数组: [before, match, after]
     const highlightSearchTerm = (text) => {
-      if (!props.searchTerm || !text) return text
+      const safeText = text || ''  // 确保text不为null或undefined
+      if (!props.searchTerm) {
+        return [safeText, '', '']  // 没有搜索词时直接返回原始文本
+      }
       
       const term = props.searchTerm.toLowerCase()
       const lowerText = text.toLowerCase()
       const startIndex = lowerText.indexOf(term)
       
-      if (startIndex === -1) return text
+      if (startIndex === -1) {
+        return [safeText, '', '']
+      }
       
       const endIndex = startIndex + term.length
-      return `${text.substring(0, startIndex)}<span class="highlight">${text.substring(startIndex, endIndex)}</span>${text.substring(endIndex)}`
+      // 返回三段纯文本
+      return [
+        safeText.substring(0, startIndex),
+        safeText.substring(startIndex, endIndex),
+        safeText.substring(endIndex)
+      ]
     }
 
     // 计算总时长
