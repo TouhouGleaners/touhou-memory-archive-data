@@ -92,10 +92,10 @@ export default {
         allVideos.value = await response.json()
 
         // 计算UP主列表
-        const allUploders = allVideos.value
+        const allUploaders = allVideos.value
           .map(v => v.uploader_name)
           .filter(name => name)  // 过滤掉所有无效的名字
-        const uniqueUploaders = [...new Set(allUploders)].sort((a, b) => a.localeCompare(b, 'zh-CN'))  //中文排序
+        const uniqueUploaders = [...new Set(allUploaders)].sort((a, b) => a.localeCompare(b, 'zh-CN'))  //中文排序
         uploaderList.value = ['所有UP主', ...uniqueUploaders]
 
         // 获取 Last-Modified 头
