@@ -2,7 +2,7 @@ import { computed } from "vue";
 
 export function useFiltering(allVideos, filters) {
   const filteredVideos = computed(() => {
-    const { searchTerm, statusFilter } = filters;
+    const { searchTerm, statusFilter, uploaderFilter } = filters;
     let videos = [...allVideos.value]
 
     // 应用筛选状态
@@ -39,8 +39,12 @@ export function useFiltering(allVideos, filters) {
       })
     }
 
+    // 应用UP筛选
+    if (uploaderFilter && uploaderFilter !== 'all') {
+      videos = videos.filter(v => v.uploader_name === uploaderFilter)
+    }
+
     // 新功能预留位
-    // TODO: 应用UP筛选
     // TODO: 应用日期范围筛选
     // TODO: 应用标签筛选
 

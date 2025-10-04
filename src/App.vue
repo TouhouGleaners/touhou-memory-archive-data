@@ -3,8 +3,10 @@
     <!-- 页面头部 -->
     <AppHeader 
       :videoCount="filteredVideos.length"
+      :uploaderList="uploaderList"
       @search="handleSearch"
       @filter="handleStatusFilter" 
+      @filter-uploader="handleUploaderFilter"
     />
     
     <!-- 视频表格 -->
@@ -25,7 +27,7 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import VideoTable from './components/VideoTable.vue'
 import AppFooter from './components/AppFooter.vue'
@@ -43,6 +45,7 @@ export default {
   setup() {
     // 原始数据
     const allVideos = ref([])
+    const uploaderList = ref([])
     const loading = ref(true)
     const error = ref('')
     const dataUpdateTime = ref('')
@@ -50,7 +53,8 @@ export default {
     // 筛选状态中心
     const currentFilterState = reactive({
       searchTerm: '',
-      statusFilter: 'all'
+      statusFilter: 'all',
+      uploaderFilter: 'all',
       // 预留
     })
 
@@ -67,6 +71,10 @@ export default {
       currentFilterState.statusFilter = statusFilter
     }
 
+    // 处理UP主筛选
+    const handleUploaderFilter = (uploaderFilter) => {
+      currentFilterState.uploaderFilter = uploaderFilter
+    }
     // 预留
 
     // 加载视频数据，并获取 Last-Modified 作为更新时间
@@ -82,6 +90,14 @@ export default {
         }
         
         allVideos.value = await response.json()
+
+        // 计算UP主列表
+        const allUploaders = allVideos.value
+          .map(v => v.uploader_name)
+          .filter(name => name)  // 过滤掉所有无效的名字
+        const uniqueUploaders = [...new Set(allUploaders)].sort((a, b) => a.localeCompare(b, 'zh-CN'))  //中文排序
+        uploaderList.value = ['所有UP主', ...uniqueUploaders]
+
         // 获取 Last-Modified 头
         const lastModified = response.headers.get('Last-Modified')
         if (lastModified) {
@@ -114,9 +130,11 @@ export default {
       loading,
       error,
       dataUpdateTime,
+      uploaderList,
       handleSearch,
       handleStatusFilter,
       loadVideoData,
+      handleUploaderFilter,
       // 预留
     }
   }

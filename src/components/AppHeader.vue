@@ -16,6 +16,20 @@
           <option value="4">人工检测为非东方</option>
           <option value="5">自动+人工检测为东方</option>
         </select>
+
+        <select 
+          class="filter-select"
+          :value="uploaderFilter"
+          @change="handleUploaderChange"
+        >
+          <option
+            v-for="uploader in uploaderList"
+            :key="uploader"
+            :value="uploader"
+          >
+            {{ uploader }}
+          </option>
+        </select>
       </div>
     </div>
 
@@ -44,12 +58,17 @@ export default {
     videoCount: {
       type: Number,
       default: 0
+    },
+    uploaderList: {
+      type: Array,
+      default: () => []
     }
   },
-  emits: ['search', 'filter'],
+  emits: ['search', 'filter', 'filter-uploader'],
   setup(props, { emit }) {
     const searchInput = ref('')
     const statusFilter = ref('all')
+    const uploaderFilter = ref('所有UP主')
     let debounceTimer = null
 
     // 处理搜索输入（防抖）
@@ -74,12 +93,22 @@ export default {
       emit('filter', statusFilter.value)
     }
 
+    // 处理UP主筛选变化
+    const handleUploaderChange = (e) => {
+      uploaderFilter.value = e.target.value
+      const emitValue = uploaderFilter.value === '所有UP主' ? 'all' : uploaderFilter.value
+      emit('filter-uploader', emitValue)
+    }
+
+
     return {
       searchInput,
       statusFilter,
+      uploaderFilter,
       handleSearchInput,
       handleKeyPress,
-      handleStatusChange
+      handleStatusChange,
+      handleUploaderChange,
     }
   }
 }
