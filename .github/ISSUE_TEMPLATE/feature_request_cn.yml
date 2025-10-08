@@ -1,7 +1,7 @@
 name: "新功能请求 (Feature Request)"
 description: "提出一个新功能的想法或对现有功能的改进建议"
-title: "[FEAT] "
-labels: ["enhancement", "待处理"]
+title: "[Feature] "
+labels: ["Status: Triage", "Type: Feature"]
 body:
   - type: markdown
     attributes:
